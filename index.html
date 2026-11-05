@@ -3,18 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Takip</title>
+    <title>YKS Takip Platformu</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #45a049; }
+    </style>
 </head>
 <body>
-    <h1>YKS Takip Platformu</h1>
-    <div id="app"></div>
+
+    <div class="card">
+        <h2>YKS Takip - Kayıt Ol</h2>
+        <input type="email" id="email" placeholder="E-posta adresiniz">
+        <input type="password" id="password" placeholder="Şifreniz">
+        <button onclick="kayitOl()">Kayıt Ol</button>
+        <p id="durum" style="font-size: 14px; color: #666;"></p>
+    </div>
 
     <!-- Firebase SDK'leri -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <!-- Senin Firebase Bağlantı Kodun -->
+    <!-- Firebase Yapılandırması ve Kayıt Fonksiyonu -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyB4qU-qnBUKYxqowICW5hskXcyycRObUVg",
@@ -25,9 +37,24 @@
         appId: "1:875160203228:web:167163aa7a6e8b47392919",
         measurementId: "G-K60QV8MLKH"
       };
-      
-      // Firebase'i başlat
+
       firebase.initializeApp(firebaseConfig);
+
+      function kayitOl() {
+          const email = document.getElementById('email').value;
+          const sifre = document.getElementById('password').value;
+          const durum = document.getElementById('durum');
+
+          firebase.auth().createUserWithEmailAndPassword(email, sifre)
+              .then((userCredential) => {
+                  durum.style.color = "green";
+                  durum.innerText = "Kayıt başarılı!";
+              })
+              .catch((error) => {
+                  durum.style.color = "red";
+                  durum.innerText = "Hata: " + error.message;
+              });
+      }
     </script>
 </body>
 </html>
