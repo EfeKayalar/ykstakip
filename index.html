@@ -1,424 +1,837 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Net Takip Dashboard</title>
+    <title>YKS Net Takip ve Performans Platformu</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-tyt: #38bdf8;
-            --accent-ayt: #a855f7;
-            --accent-target: #34d399;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 24px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tag {
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent-tyt);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .stat-value.tyt { color: var(--accent-tyt); }
-        .stat-value.ayt { color: var(--accent-ayt); }
-        .stat-value.target { color: var(--accent-target); }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-        }
-
-        .card-header {
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 360px;
-            width: 100%;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            max-height: 380px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: var(--card-bg);
-            color: var(--text-muted);
-            padding: 12px 8px;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        input[type="number"] {
-            width: 65px;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 6px 8px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        input[type="number"]:focus {
-            border-color: var(--accent-tyt);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-        }
-
-        .tips-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .tips-card h3 {
-            font-size: 1rem;
-            color: var(--accent-target);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tips-list {
-            list-style-type: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.88rem;
-            color: var(--text-muted);
-        }
-
-        .tips-list li {
-            position: relative;
-            padding-left: 18px;
-        }
-
-        .tips-list li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--accent-target);
-            font-size: 1.2rem;
-            line-height: 1;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <header>
-        <h1>YKS Net Takip Paneli <span class="tag">Hazırlık Süreci</span></h1>
-    </header>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-label">Son TYT Neti</span>
-            <span class="stat-value tyt" id="latest-tyt">0.0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Son AYT Neti</span>
-            <span class="stat-value ayt" id="latest-ayt">0.0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Ortalama Toplam Net</span>
-            <span class="stat-value target" id="avg-total">0.0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">En Yüksek Toplam Net</span>
-            <span class="stat-value" id="max-total" style="color: #f59e0b;">0.0</span>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">Aylık Net Gelişim Grafiği</span>
-            </div>
-            <div class="chart-container">
-                <canvas id="netChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">Aylık Net Girişi</span>
-            </div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ay</th>
-                            <th>TYT</th>
-                            <th>AYT</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="tips-card">
-        <h3>💡 Verimli Net Takibi İçin Tavsiyeler</h3>
-        <ul class="tips-list">
-            <li><b>Plato Dönemlerine Takılma:</b> Netlerinin 1-2 ay sabit kalması normaldir. Konu eksiklerini kapatıp soru tipine alıştıkça ani sıçramalar göreceksin.</li>
-            <li><b>Yanlış Analizi Şart:</b> Net grafiğinden ziyade her deneme sonrası boş ve yanlış soru konularını bir deftere not et.</li>
-            <li><b>AYT Ağırlığı:</b> İkinci dönemden itibaren net artıran ana unsur AYT olacaktır. TYT net dalgalanmalarına takılıp AYT'yi aksatma.</li>
-        </ul>
-    </div>
-</div>
-
-<script>
-    const monthsData = [
-        { month: 'Eylül', tyt: 55, ayt: 20 },
-        { month: 'Ekim', tyt: 62, ayt: 25 },
-        { month: 'Kasım', tyt: 68, ayt: 32 },
-        { month: 'Aralık', tyt: 72, ayt: 38 },
-        { month: 'Ocak', tyt: 75, ayt: 44 },
-        { month: 'Şubat', tyt: 78, ayt: 50 },
-        { month: 'Mart', tyt: 83, ayt: 58 },
-        { month: 'Nisan', tyt: 88, ayt: 65 },
-        { month: 'Mayıs', tyt: 94, ayt: 72 },
-        { month: 'Haziran', tyt: 98, ayt: 76 }
-    ];
-
-    let chart;
-
-    function initTable() {
-        const tbody = document.getElementById('table-body');
-        tbody.innerHTML = '';
-        
-        monthsData.forEach((data, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="font-weight: 500;">${data.month}</td>
-                <td><input type="number" step="0.5" value="${data.tyt}" min="0" max="120" onchange="updateData(${index}, 'tyt', this.value)"></td>
-                <td><input type="number" step="0.5" value="${data.ayt}" min="0" max="80" onchange="updateData(${index}, 'ayt', this.value)"></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function initChart() {
-        const ctx = document.getElementById('netChart').getContext('2d');
-        
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: monthsData.map(d => d.month),
-                datasets: [
-                    {
-                        label: 'TYT Net',
-                        data: monthsData.map(d => d.tyt),
-                        borderColor: '#38bdf8',
-                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.3,
-                        fill: true,
-                        pointBackgroundColor: '#38bdf8',
-                        pointRadius: 4
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                     },
-                    {
-                        label: 'AYT Net',
-                        data: monthsData.map(d => d.ayt),
-                        borderColor: '#a855f7',
-                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.3,
-                        fill: true,
-                        pointBackgroundColor: '#a855f7',
-                        pointRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#94a3b8',
-                            font: { family: 'Plus Jakarta Sans', size: 12 }
+                    colors: {
+                        brand: {
+                            tyt: '#38bdf8',
+                            ayt: '#a855f7',
+                            target: '#34d399',
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155'
                         }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: '#1e293b',
-                        titleColor: '#f8fafc',
-                        bodyColor: '#94a3b8',
-                        borderColor: '#334155',
-                        borderWidth: 1
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    y: {
-                        min: 0,
-                        max: 120,
-                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                        ticks: { color: '#94a3b8' }
                     }
                 }
             }
-        });
-    }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        /* Custom Scrollbar for better UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between">
 
-    function updateData(index, field, value) {
-        const numVal = parseFloat(value) || 0;
-        monthsData[index][field] = numVal;
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-purple-600 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-sky-500/20">
+                    YKS
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">YKS Net Takip</h1>
+                    <p class="text-xs text-slate-400">Bulut Tabanlı Performans Analizi</p>
+                </div>
+            </div>
+
+            <!-- User Auth Profile Info / Status -->
+            <div id="nav-user-info" class="hidden flex items-center gap-4">
+                <span id="user-role-badge" class="hidden px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <i class="fa-solid fa-user-shield mr-1"></i> Yönetici (Admin)
+                </span>
+                <div class="text-right hidden sm:block">
+                    <div id="user-display-name" class="text-sm font-semibold text-slate-200">Öğrenci Adı</div>
+                    <div id="user-display-email" class="text-xs text-slate-400">email@adres.com</div>
+                </div>
+                <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="hidden sm:inline">Çıkış Yap</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 flex-grow">
+
+        <!-- AUTHENTICATION CARD (LOGIN / REGISTER) -->
+        <div id="auth-section" class="max-w-md mx-auto my-12 bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur">
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-700 mb-6">
+                <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-center font-semibold text-sky-400 border-b-2 border-sky-400 transition">Giriş Yap</button>
+                <button id="tab-register-btn" onclick="switchAuthTab('register')" class="flex-1 pb-3 text-center font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition">Kayıt Ol</button>
+            </div>
+
+            <!-- Alert Message Box -->
+            <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">E-Posta Adresi</label>
+                    <input type="email" id="login-email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 transition" placeholder="ornek@ogrenci.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Şifre</label>
+                    <input type="password" id="login-password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 transition" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Hesabıma Giriş Yap
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Ad Soyad</label>
+                    <input type="text" id="register-name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition" placeholder="Ahmet Yılmaz">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">E-Posta Adresi</label>
+                    <input type="email" id="register-email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition" placeholder="ornek@ogrenci.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Şifre</label>
+                    <input type="password" id="register-password" required minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition" placeholder="En az 6 karakter">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> Hesap Oluştur
+                </button>
+            </form>
+        </div>
+
+        <!-- DASHBOARD CONTAINER (STUDENT / ADMIN) -->
+        <div id="dashboard-section" class="hidden space-y-6">
+
+            <!-- ADMIN NOTICE / TAB SELECTOR (IF ADMIN) -->
+            <div id="admin-controls" class="hidden bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-amber-400">Yönetici Modu Aktif</h3>
+                        <p class="text-xs text-amber-200/70">Sistemdeki tüm öğrencileri inceleyebilir veya kendi verilerinizi yönetebilirsiniz.</p>
+                    </div>
+                </div>
+                <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 w-full sm:w-auto">
+                    <button id="view-my-dashboard-btn" onclick="switchDashboardView('student')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition">Kendi Panelim</button>
+                    <button id="view-admin-dashboard-btn" onclick="switchDashboardView('admin')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Tüm Öğrenciler</button>
+                </div>
+            </div>
+
+            <!-- STUDENT DASHBOARD VIEW -->
+            <div id="student-view" class="space-y-6">
+                <!-- STATS SUMMARY CARDS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-slate-400">Son TYT Neti</span>
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-latest-tyt" class="text-2xl sm:text-3xl font-extrabold text-sky-400">0.0</span>
+                            <span class="text-xs text-slate-500 ml-1">/ 120</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-slate-400">Son AYT Neti</span>
+                            <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-latest-ayt" class="text-2xl sm:text-3xl font-extrabold text-purple-400">0.0</span>
+                            <span class="text-xs text-slate-500 ml-1">/ 80</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-slate-400">Ortalama Toplam</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-avg-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0.0</span>
+                            <span class="text-xs text-slate-500 ml-1">net</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-slate-400">Zirve Net (Max)</span>
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-max-total" class="text-2xl sm:text-3xl font-extrabold text-amber-400">0.0</span>
+                            <span class="text-xs text-slate-500 ml-1">net</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN CHART AND TABLE SECTION -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- GRAPH CARD -->
+                    <div class="lg:col-span-2 bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-sky-400"></i>
+                                Aylık Net Gelişim Eğrisi
+                            </h2>
+                            <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">Canlı Veri</span>
+                        </div>
+                        <div class="relative h-72 sm:h-80 w-full">
+                            <canvas id="studentNetChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- MONTHLY DATA INPUT TABLE -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-purple-400"></i>
+                                Net Giriş Tablosu
+                            </h2>
+                            <button onclick="saveStudentData()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Kaydet
+                            </button>
+                        </div>
+
+                        <!-- Toast Notification inside panel -->
+                        <div id="save-toast" class="hidden mb-3 p-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs rounded-lg text-center font-medium">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Netleriniz buluta kaydedildi!
+                        </div>
+
+                        <div class="overflow-y-auto max-h-80 pr-1 space-y-2" id="monthly-inputs-container">
+                            <!-- Dynamic Inputs Row Will Render Here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIPS / MOTIVATION CARD -->
+                <div class="bg-gradient-to-r from-slate-800 via-slate-800/90 to-slate-900 border border-slate-700/80 rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-lightbulb"></i> YKS Net Takip İpuçları
+                    </h3>
+                    <ul class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                        <li><b>Düzenli Veri Girin:</b> Her ayın sonunda deneme ortalamanızı tabloya ekleyerek gelişiminizi gözlemleyin.</li>
+                        <li><b>Plato Dönemleri:</b> Netleriniz 1-2 ay sabit kalabilir; vazgeçmeden çalışmaya devam edince sıçramayı göreceksiniz.</li>
+                        <li><b>Veri Güvenliği:</b> Verileriniz tamamen şifreli veritabanında saklanır, sizden başka kimse değiştiremez.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ADMIN DASHBOARD VIEW (ALL STUDENTS LIST) -->
+            <div id="admin-view" class="hidden space-y-6">
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-users text-amber-400"></i>
+                                Kayıtlı Öğrenci Listesi & Performansları
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Sistemde kayıtlı olan tüm öğrencilerin net gelişimlerini inceleyin.</p>
+                        </div>
+                        <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-xs text-slate-300">
+                            Toplam Öğrenci: <span id="admin-student-count" class="font-bold text-amber-400">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Students Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                            <thead class="text-xs uppercase bg-slate-900/90 text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-3">Öğrenci Adı</th>
+                                    <th class="p-3">E-Posta</th>
+                                    <th class="p-3">Son TYT</th>
+                                    <th class="p-3">Son AYT</th>
+                                    <th class="p-3">Ort. Toplam</th>
+                                    <th class="p-3 text-right">Eylem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-table-body" class="divide-y divide-slate-700/50">
+                                <!-- Dynamic Admin Student Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN INSPECT MODAL / DETAIL CHART -->
+                <div id="admin-inspect-card" class="hidden bg-slate-800/90 border border-amber-500/30 rounded-2xl p-6 relative">
+                    <button onclick="closeAdminInspect()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <h3 class="text-lg font-bold text-amber-400 mb-1" id="inspect-student-name">Öğrenci Detayı</h3>
+                    <p class="text-xs text-slate-400 mb-4" id="inspect-student-email">email@adres.com</p>
+                    
+                    <div class="relative h-64 w-full">
+                        <canvas id="adminInspectChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        YKS Net Takip Platformu &copy; 2026 — Güvenli Bulut Altyapısı
+    </footer>
+
+    <!-- FIREBASE MODULE SCRIPTS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signInAnonymously
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            collection, 
+            getDocs 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================================================
+        // YÖNETİCİ (ADMIN) E-POSTASI
+        // Buraya kendi e-posta adresinizi yazın. Bu adresle giriş yapıldığında Admin Paneli açılır.
+        // =========================================================================
+        const ADMIN_EMAIL = "admin@yks.com";
+
+        // APP & FIREBASE CONFIG INITIALIZATION
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'yks-net-takip-app';
         
-        chart.data.datasets[0].data = monthsData.map(d => d.tyt);
-        chart.data.datasets[1].data = monthsData.map(d => d.ayt);
-        chart.update();
-        
-        updateStats();
-    }
+        // Fallback demo config if environment is missing
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "DEMO_KEY",
+                authDomain: "demo.firebaseapp.com",
+                projectId: "demo-project",
+                storageBucket: "demo.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef"
+            };
 
-    function updateStats() {
-        const validMonths = monthsData.filter(d => d.tyt > 0 || d.ayt > 0);
-        const lastEntry = validMonths.length > 0 ? validMonths[validMonths.length - 1] : { tyt: 0, ayt: 0 };
-        
-        document.getElementById('latest-tyt').innerText = lastEntry.tyt;
-        document.getElementById('latest-ayt').innerText = lastEntry.ayt;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        const totals = monthsData.map(d => d.tyt + d.ayt).filter(t => t > 0);
-        const avg = totals.length > 0 ? (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1) : 0;
-        const max = totals.length > 0 ? Math.max(...totals) : 0;
+        // DEFAULT MONTH LIST
+        const MONTHS = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'];
 
-        document.getElementById('avg-total').innerText = avg;
-        document.getElementById('max-total').innerText = max;
-    }
+        // STATE MANAGEMENT
+        let currentUser = null;
+        let currentUserRole = 'student'; // 'student' or 'admin'
+        let studentData = MONTHS.map(m => ({ month: m, tyt: 0, ayt: 0 }));
+        let studentChart = null;
+        let adminInspectChart = null;
+        let allStudentsList = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initTable();
-        initChart();
-        updateStats();
-    });
-</script>
+        // INITIAL AUTH HANDLER
+        async function initAuth() {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (e) {
+                    console.log("Custom token signin failed, waiting for user input.");
+                }
+            }
 
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                    document.getElementById('nav-user-info').classList.remove('hidden');
+                    document.getElementById('nav-user-info').classList.add('flex');
+
+                    // Check Admin Status
+                    if (user.email === ADMIN_EMAIL) {
+                        currentUserRole = 'admin';
+                        document.getElementById('user-role-badge').classList.remove('hidden');
+                        document.getElementById('admin-controls').classList.remove('hidden');
+                    } else {
+                        currentUserRole = 'student';
+                        document.getElementById('user-role-badge').classList.add('hidden');
+                        document.getElementById('admin-controls').classList.add('hidden');
+                    }
+
+                    // Load User Info
+                    const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'info');
+                    const userSnap = await getDoc(userDocRef);
+                    let userName = "Öğrenci";
+                    if (userSnap.exists()) {
+                        userName = userSnap.data().name || "Öğrenci";
+                    } else {
+                        userName = user.displayName || user.email.split('@')[0];
+                    }
+
+                    document.getElementById('user-display-name').innerText = userName;
+                    document.getElementById('user-display-email').innerText = user.email;
+
+                    // Render UI & Load Data
+                    renderInputsTable();
+                    initChart();
+                    await loadStudentData(user.uid);
+
+                    if (currentUserRole === 'admin') {
+                        loadAllStudentsAdmin();
+                    }
+                } else {
+                    currentUser = null;
+                    document.getElementById('auth-section').classList.remove('hidden');
+                    document.getElementById('dashboard-section').classList.add('hidden');
+                    document.getElementById('nav-user-info').classList.add('hidden');
+                }
+            });
+        }
+
+        // AUTH ACTION FUNCTIONS
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            showAuthAlert('', 'clear');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                showAuthAlert('Giriş başarısız: ' + getTurkishAuthError(err.code), 'error');
+            }
+        };
+
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            showAuthAlert('', 'clear');
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                // Save user profile info
+                const userDocRef = doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'info');
+                await setDoc(userDocRef, {
+                    name: name,
+                    email: email,
+                    createdAt: new Date().toISOString()
+                });
+
+                // Also save to public registry for admin listing
+                const publicUserDoc = doc(db, 'artifacts', appId, 'public', 'data', 'all_users', cred.user.uid);
+                await setDoc(publicUserDoc, {
+                    uid: cred.user.uid,
+                    name: name,
+                    email: email
+                });
+
+            } catch (err) {
+                showAuthAlert('Kayıt başarısız: ' + getTurkishAuthError(err.code), 'error');
+            }
+        };
+
+        window.handleLogout = () => {
+            signOut(auth);
+        };
+
+        // FIRESTORE DATA ACTIONS
+        async function loadStudentData(uid) {
+            try {
+                const dataDocRef = doc(db, 'artifacts', appId, 'users', uid, 'net_data', 'months');
+                const docSnap = await getDoc(dataDocRef);
+
+                if (docSnap.exists() && docSnap.data().records) {
+                    studentData = docSnap.data().records;
+                } else {
+                    // Reset to default
+                    studentData = MONTHS.map(m => ({ month: m, tyt: 0, ayt: 0 }));
+                }
+
+                updateUIWithData();
+            } catch (e) {
+                console.error("Veri yüklenirken hata:", e);
+            }
+        }
+
+        window.saveStudentData = async () => {
+            if (!currentUser) return;
+
+            try {
+                // Read from Inputs
+                MONTHS.forEach((m, idx) => {
+                    const tytVal = parseFloat(document.getElementById(`tyt-input-${idx}`).value) || 0;
+                    const aytVal = parseFloat(document.getElementById(`ayt-input-${idx}`).value) || 0;
+                    studentData[idx].tyt = tytVal;
+                    studentData[idx].ayt = aytVal;
+                });
+
+                // Save to private user storage
+                const dataDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'net_data', 'months');
+                await setDoc(dataDocRef, { records: studentData, updatedAt: new Date().toISOString() });
+
+                // Also update public summary for Admin View
+                const totals = studentData.map(d => d.tyt + d.ayt).filter(t => t > 0);
+                const avgTotal = totals.length > 0 ? (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1) : 0;
+                
+                const validMonths = studentData.filter(d => d.tyt > 0 || d.ayt > 0);
+                const lastEntry = validMonths.length > 0 ? validMonths[validMonths.length - 1] : { tyt: 0, ayt: 0 };
+
+                const publicSummaryRef = doc(db, 'artifacts', appId, 'public', 'data', 'student_summaries', currentUser.uid);
+                await setDoc(publicSummaryRef, {
+                    uid: currentUser.uid,
+                    lastTyt: lastEntry.tyt,
+                    lastAyt: lastEntry.ayt,
+                    avgTotal: parseFloat(avgTotal),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+
+                updateUIWithData();
+
+                // Show toast
+                const toast = document.getElementById('save-toast');
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 3000);
+
+            } catch (e) {
+                alert("Veri kaydedilirken hata oluştu: " + e.message);
+            }
+        };
+
+        // RENDER TABLE & CHART
+        function renderInputsTable() {
+            const container = document.getElementById('monthly-inputs-container');
+            container.innerHTML = '';
+
+            MONTHS.forEach((m, idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50 text-xs";
+                div.innerHTML = `
+                    <span class="font-semibold text-slate-300 w-16">${m}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1">
+                            <span class="text-sky-400 font-bold">TYT:</span>
+                            <input type="number" id="tyt-input-${idx}" step="0.5" min="0" max="120" value="0" class="w-14 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-white focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-purple-400 font-bold">AYT:</span>
+                            <input type="number" id="ayt-input-${idx}" step="0.5" min="0" max="80" value="0" class="w-14 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateUIWithData() {
+            // Update Inputs
+            studentData.forEach((d, idx) => {
+                const tytEl = document.getElementById(`tyt-input-${idx}`);
+                const aytEl = document.getElementById(`ayt-input-${idx}`);
+                if (tytEl) tytEl.value = d.tyt;
+                if (aytEl) aytEl.value = d.ayt;
+            });
+
+            // Calculate Stats
+            const validMonths = studentData.filter(d => d.tyt > 0 || d.ayt > 0);
+            const lastEntry = validMonths.length > 0 ? validMonths[validMonths.length - 1] : { tyt: 0, ayt: 0 };
+            
+            document.getElementById('stat-latest-tyt').innerText = lastEntry.tyt;
+            document.getElementById('stat-latest-ayt').innerText = lastEntry.ayt;
+
+            const totals = studentData.map(d => d.tyt + d.ayt).filter(t => t > 0);
+            const avg = totals.length > 0 ? (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1) : 0;
+            const max = totals.length > 0 ? Math.max(...totals) : 0;
+
+            document.getElementById('stat-avg-total').innerText = avg;
+            document.getElementById('stat-max-total').innerText = max;
+
+            // Update Chart
+            if (studentChart) {
+                studentChart.data.datasets[0].data = studentData.map(d => d.tyt);
+                studentChart.data.datasets[1].data = studentData.map(d => d.ayt);
+                studentChart.update();
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('studentNetChart').getContext('2d');
+            if (studentChart) studentChart.destroy();
+
+            studentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: MONTHS,
+                    datasets: [
+                        {
+                            label: 'TYT Net',
+                            data: studentData.map(d => d.tyt),
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: '#38bdf8'
+                        },
+                        {
+                            label: 'AYT Net',
+                            data: studentData.map(d => d.ayt),
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: '#a855f7'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } },
+                        y: { min: 0, max: 120, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // ADMIN FUNCTIONS
+        async function loadAllStudentsAdmin() {
+            try {
+                // Fetch user list
+                const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'all_users');
+                const usersSnap = await getDocs(usersCol);
+
+                // Fetch summaries
+                const summariesCol = collection(db, 'artifacts', appId, 'public', 'data', 'student_summaries');
+                const summariesSnap = await getDocs(summariesCol);
+
+                const summariesMap = {};
+                summariesSnap.forEach(doc => {
+                    summariesMap[doc.id] = doc.data();
+                });
+
+                allStudentsList = [];
+                usersSnap.forEach(doc => {
+                    const uData = doc.data();
+                    const summary = summariesMap[doc.id] || { lastTyt: 0, lastAyt: 0, avgTotal: 0 };
+                    allStudentsList.push({
+                        ...uData,
+                        ...summary
+                    });
+                });
+
+                document.getElementById('admin-student-count').innerText = allStudentsList.length;
+
+                const tbody = document.getElementById('admin-students-table-body');
+                tbody.innerHTML = '';
+
+                if (allStudentsList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Henüz kayıtlı öğrenci verisi bulunmuyor.</td></tr>`;
+                    return;
+                }
+
+                allStudentsList.forEach(st => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/30 transition";
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-white">${st.name || 'İsimsiz'}</td>
+                        <td class="p-3 text-slate-400 text-xs">${st.email || '-'}</td>
+                        <td class="p-3 text-sky-400 font-bold">${st.lastTyt || 0}</td>
+                        <td class="p-3 text-purple-400 font-bold">${st.lastAyt || 0}</td>
+                        <td class="p-3 text-emerald-400 font-bold">${st.avgTotal || 0}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="inspectStudentData('${st.uid}', '${st.name}', '${st.email}')" class="bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-xs px-3 py-1.5 rounded-lg border border-amber-500/30 transition">
+                                <i class="fa-solid fa-chart-line mr-1"></i> İncele
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (e) {
+                console.error("Admin yükleme hatası:", e);
+            }
+        }
+
+        window.inspectStudentData = async (uid, name, email) => {
+            document.getElementById('inspect-student-name').innerText = name + " - Net Gelişimi";
+            document.getElementById('inspect-student-email').innerText = email;
+            document.getElementById('admin-inspect-card').classList.remove('hidden');
+
+            try {
+                const dataDocRef = doc(db, 'artifacts', appId, 'users', uid, 'net_data', 'months');
+                const docSnap = await getDoc(dataDocRef);
+                let inspectData = MONTHS.map(m => ({ month: m, tyt: 0, ayt: 0 }));
+
+                if (docSnap.exists() && docSnap.data().records) {
+                    inspectData = docSnap.data().records;
+                }
+
+                const ctx = document.getElementById('adminInspectChart').getContext('2d');
+                if (adminInspectChart) adminInspectChart.destroy();
+
+                adminInspectChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: MONTHS,
+                        datasets: [
+                            {
+                                label: 'TYT Net',
+                                data: inspectData.map(d => d.tyt),
+                                borderColor: '#38bdf8',
+                                borderWidth: 2,
+                                tension: 0.3
+                            },
+                            {
+                                label: 'AYT Net',
+                                data: inspectData.map(d => d.ayt),
+                                borderColor: '#a855f7',
+                                borderWidth: 2,
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' } },
+                            y: { min: 0, max: 120, ticks: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+
+            } catch (e) {
+                alert("Öğrenci verisi çekilemedi: " + e.message);
+            }
+        };
+
+        window.closeAdminInspect = () => {
+            document.getElementById('admin-inspect-card').classList.add('hidden');
+        };
+
+        window.switchDashboardView = (view) => {
+            const studentView = document.getElementById('student-view');
+            const adminView = document.getElementById('admin-view');
+            const studentBtn = document.getElementById('view-my-dashboard-btn');
+            const adminBtn = document.getElementById('view-admin-dashboard-btn');
+
+            if (view === 'admin') {
+                studentView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                adminBtn.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition";
+                studentBtn.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+            } else {
+                adminView.classList.add('hidden');
+                studentView.classList.remove('hidden');
+                studentBtn.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition";
+                adminBtn.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+            }
+        };
+
+        // HELPER FUNCTIONS
+        window.switchAuthTab = (tab) => {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginBtn = document.getElementById('tab-login-btn');
+            const registerBtn = document.getElementById('tab-register-btn');
+            showAuthAlert('', 'clear');
+
+            if (tab === 'register') {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                registerBtn.className = "flex-1 pb-3 text-center font-semibold text-purple-400 border-b-2 border-purple-400 transition";
+                loginBtn.className = "flex-1 pb-3 text-center font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition";
+            } else {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                loginBtn.className = "flex-1 pb-3 text-center font-semibold text-sky-400 border-b-2 border-sky-400 transition";
+                registerBtn.className = "flex-1 pb-3 text-center font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition";
+            }
+        };
+
+        function showAuthAlert(msg, type) {
+            const el = document.getElementById('auth-alert');
+            if (type === 'clear') {
+                el.classList.add('hidden');
+                return;
+            }
+            el.innerText = msg;
+            el.classList.remove('hidden');
+            if (type === 'error') {
+                el.className = "mb-4 p-3 rounded-xl text-xs font-medium border bg-red-500/10 text-red-400 border-red-500/20";
+            } else {
+                el.className = "mb-4 p-3 rounded-xl text-xs font-medium border bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+            }
+        }
+
+        function getTurkishAuthError(code) {
+            switch (code) {
+                case 'auth/invalid-email': return 'Geçersiz e-posta adresi.';
+                case 'auth/user-not-found': return 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.';
+                case 'auth/wrong-password': return 'Hatalı şifre girdiniz.';
+                case 'auth/email-already-in-use': return 'Bu e-posta adresi zaten kullanımda.';
+                case 'auth/weak-password': return 'Şifre en az 6 karakter olmalıdır.';
+                default: return 'Bir hata oluştu, lütfen tekrar deneyin.';
+            }
+        }
+
+        // Initialize App
+        initAuth();
+    </script>
 </body>
 </html>
+```
