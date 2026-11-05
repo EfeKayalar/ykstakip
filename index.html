@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Net Takip Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-tyt: #38bdf8;
+            --accent-ayt: #a855f7;
+            --accent-target: #34d399;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-tyt);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-value.tyt { color: var(--accent-tyt); }
+        .stat-value.ayt { color: var(--accent-ayt); }
+        .stat-value.target { color: var(--accent-target); }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .card-header {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 360px;
+            width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            padding: 12px 8px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        input[type="number"] {
+            width: 65px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-tyt);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        .tips-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tips-card h3 {
+            font-size: 1rem;
+            color: var(--accent-target);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tips-list {
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .tips-list li {
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .tips-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-target);
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>YKS Net Takip Paneli <span class="tag">Hazırlık Süreci</span></h1>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Son TYT Neti</span>
+            <span class="stat-value tyt" id="latest-tyt">0.0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Son AYT Neti</span>
+            <span class="stat-value ayt" id="latest-ayt">0.0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Ortalama Toplam Net</span>
+            <span class="stat-value target" id="avg-total">0.0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">En Yüksek Toplam Net</span>
+            <span class="stat-value" id="max-total" style="color: #f59e0b;">0.0</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Aylık Net Gelişim Grafiği</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="netChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Aylık Net Girişi</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ay</th>
+                            <th>TYT</th>
+                            <th>AYT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tips-card">
+        <h3>💡 Verimli Net Takibi İçin Tavsiyeler</h3>
+        <ul class="tips-list">
+            <li><b>Plato Dönemlerine Takılma:</b> Netlerinin 1-2 ay sabit kalması normaldir. Konu eksiklerini kapatıp soru tipine alıştıkça ani sıçramalar göreceksin.</li>
+            <li><b>Yanlış Analizi Şart:</b> Net grafiğinden ziyade her deneme sonrası boş ve yanlış soru konularını bir deftere not et.</li>
+            <li><b>AYT Ağırlığı:</b> İkinci dönemden itibaren net artıran ana unsur AYT olacaktır. TYT net dalgalanmalarına takılıp AYT'yi aksatma.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const monthsData = [
+        { month: 'Eylül', tyt: 55, ayt: 20 },
+        { month: 'Ekim', tyt: 62, ayt: 25 },
+        { month: 'Kasım', tyt: 68, ayt: 32 },
+        { month: 'Aralık', tyt: 72, ayt: 38 },
+        { month: 'Ocak', tyt: 75, ayt: 44 },
+        { month: 'Şubat', tyt: 78, ayt: 50 },
+        { month: 'Mart', tyt: 83, ayt: 58 },
+        { month: 'Nisan', tyt: 88, ayt: 65 },
+        { month: 'Mayıs', tyt: 94, ayt: 72 },
+        { month: 'Haziran', tyt: 98, ayt: 76 }
+    ];
+
+    let chart;
+
+    function initTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        
+        monthsData.forEach((data, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: 500;">${data.month}</td>
+                <td><input type="number" step="0.5" value="${data.tyt}" min="0" max="120" onchange="updateData(${index}, 'tyt', this.value)"></td>
+                <td><input type="number" step="0.5" value="${data.ayt}" min="0" max="80" onchange="updateData(${index}, 'ayt', this.value)"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('netChart').getContext('2d');
+        
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthsData.map(d => d.month),
+                datasets: [
+                    {
+                        label: 'TYT Net',
+                        data: monthsData.map(d => d.tyt),
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#38bdf8',
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'AYT Net',
+                        data: monthsData.map(d => d.ayt),
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#a855f7',
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#94a3b8',
+                            font: { family: 'Plus Jakarta Sans', size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#94a3b8',
+                        borderColor: '#334155',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        min: 0,
+                        max: 120,
+                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateData(index, field, value) {
+        const numVal = parseFloat(value) || 0;
+        monthsData[index][field] = numVal;
+        
+        chart.data.datasets[0].data = monthsData.map(d => d.tyt);
+        chart.data.datasets[1].data = monthsData.map(d => d.ayt);
+        chart.update();
+        
+        updateStats();
+    }
+
+    function updateStats() {
+        const validMonths = monthsData.filter(d => d.tyt > 0 || d.ayt > 0);
+        const lastEntry = validMonths.length > 0 ? validMonths[validMonths.length - 1] : { tyt: 0, ayt: 0 };
+        
+        document.getElementById('latest-tyt').innerText = lastEntry.tyt;
+        document.getElementById('latest-ayt').innerText = lastEntry.ayt;
+
+        const totals = monthsData.map(d => d.tyt + d.ayt).filter(t => t > 0);
+        const avg = totals.length > 0 ? (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1) : 0;
+        const max = totals.length > 0 ? Math.max(...totals) : 0;
+
+        document.getElementById('avg-total').innerText = avg;
+        document.getElementById('max-total').innerText = max;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTable();
+        initChart();
+        updateStats();
+    });
+</script>
+
+</body>
+</html>
