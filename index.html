@@ -1,11 +1,33 @@
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB4qU-qnBUKYxqowICW5hskXcyycRObUVg",
-    authDomain: "ykstakip-4074f.firebaseapp.com",
-    projectId: "ykstakip-4074f",
-    storageBucket: "ykstakip-4074f.firebasestorage.app",
-    messagingSenderId: "875160203228",
-    appId: "1:875160203228:web:167163aa7a6e8b47392919",
-    measurementId: "G-K60QV8MLKH"
-  };
-</script>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Takip</title>
+</head>
+<body>
+    <h1>YKS Takip Platformu</h1>
+    <div id="app"></div>
+
+    <!-- Firebase SDK'leri -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Senin Firebase Bağlantı Kodun -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyB4qU-qnBUKYxqowICW5hskXcyycRObUVg",
+        authDomain: "ykstakip-4074f.firebaseapp.com",
+        projectId: "ykstakip-4074f",
+        storageBucket: "ykstakip-4074f.firebasestorage.app",
+        messagingSenderId: "875160203228",
+        appId: "1:875160203228:web:167163aa7a6e8b47392919",
+        measurementId: "G-K60QV8MLKH"
+      };
+      
+      // Firebase'i başlat
+      firebase.initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>
